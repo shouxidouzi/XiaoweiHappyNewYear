@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新年快乐！烟花绽放</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(180deg, #0a0a2a 0%, #1a0033 100%);
+            color: #fff;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            padding: 20px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 800px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fad0c4, #a1c4fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 154, 158, 0.5);
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+        .message {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin: 30px 0;
+            color: #e6d4ff;
+        }
+        .xiao-dou-zhi {
+            font-family: monospace;
+            white-space: pre;
+            color: #ffcc00;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            display: inline-block;
+            line-height: 1.2;
+            font-size: 14px;
+            border: 1px solid #ffcc0033;
+        }
+        .instructions {
+            margin-top: 30px;
+            font-size: 1rem;
+            color: #aaa;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+            padding-top: 20px;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .control-panel {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #ff7eb3, #ff758c);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 118, 140, 0.4);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 118, 140, 0.6);
+        }
+        #toggleFireworks {
+            background: linear-gradient(90deg, #36d1dc, #5b86e5);
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 10, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+        .loading h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top: 5px solid #ff9a9e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+        <h2>正在准备烟花表演...</h2>
+    </div>
+
+    <canvas id="fireworksCanvas"></canvas>
+    <div class="container">
+        <h1>✨ 小唯新年快乐 ✨</h1>
+        <p class="message">
+            愿你新的一年，如这绽放的烟花般绚丽多彩，<br>
+            每一刻都充满喜悦与温暖，每一梦都如愿以偿。
+        </p >
+        <div class="xiao-dou-zhi">
+⠀小唯新年快乐～⠀
+                 ⡞⠳⣄⣀ ⣀ ⣀⣠⠞⢷
+　           ⣾ 　                     ⣷
+         　  ⠻⣄     ᦲ ᆺ ᦲ    ⣠⠟
+    ˚₊‧꒰ა  ⣠⡿                       ⢿⣄ ໒꒱ ‧₊˚
+              ⠙⠛⠋                    ⠙⠛⠋
+        </div>
+        <div class="control-panel">
+            <button id="moreFireworks">🎆 更多烟花</button>
+            <button id="toggleFireworks">⏸️ 暂停烟花</button>
+        </div>
+        <p class="instructions">
+            💡 提示：点击页面任意位置，或在“更多烟花”按钮上方空白处点击，都可以手动触发新的烟花！烟花的颜色、大小和轨迹都是随机的。
+        </p >
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        const loadingScreen = document.getElementById('loading');
+        
+        // 等待页面加载完成后隐藏加载屏幕
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        let fireworksActive = true;
+        const colors = [
+            '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE',
+            '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE',
+            '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40'
+        ];
+
+        class Particle {
+            constructor(x, y, color = null) {
+                this.x = x;
+                this.y = y;
+                this.color = color || colors[Math.floor(Math.random() * colors.length)];
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.gravity = 0.05;
+                this.decay = 0.01;
+                this.alpha = 1;
+            }
+            
+            update() {
+                this.speedY += this.gravity;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= this.decay;
+               
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // 烟花发射函数
+        function launchFirework() {
+            if (!fireworksActive) return;
+            
+            const x = Math.random() * canvas.width;
+            const y = canvas.height;
+            
+            // 创建烟花粒子
+            for (let i = 0; i < 100; i++) {
+                const particle = new Particle(x/2, y/2);
+                particles.push(particle);
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            if (!fireworksActive) return;
+            
+            // 半透明背景实现拖尾效果
+            ctx.fillStyle = 'rgba(10, 10, 42, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 更新和绘制所有粒子
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.update();
+                particle.draw();
+                
+                if (particle.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 初始化
+        animate();
+
+        // 事件监听
+        document.addEventListener('click', (e) => {
+            // 点击按钮时不触发烟花
+            if (e.target.tagName !== 'BUTTON') {
+                launchFirework();
+            }
+        });
+
+        document.getElementById('moreFireworks').addEventListener('click', launchFirework);
+
+        document.getElementById('toggleFireworks').addEventListener('click', () => {
+            fireworksActive = !fireworksActive;
+            const button = document.getElementById('toggleFireworks');
+            
+            if (fireworksActive) {
+                button.textContent = '⏸️ 暂停烟花';
+                button.style.background = 'linear-gradient(90deg, #36d1dc, #5b86e5)';
+                animate();
+            } else {
+                button.textContent = '▶️ 播放烟花';
+                button.style.background = 'linear-gradient(90deg, #ff7eb3, #ff758c)';
+                // 停止动画但保留现有粒子
+            }
+        });
+
+        // 窗口大小调整
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
